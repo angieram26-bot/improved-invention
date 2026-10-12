@@ -1,144 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Calculadora SOINGES</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      color: #222;
-      margin: 0;
-      padding: 24px;
-    }
-    main {
-      max-width: 520px;
-      margin: auto;
-      background: white;
-      padding: 28px;
-      border-radius: 16px;
-      border-top: 8px solid #f47721;
-    }
-    h1 { margin-bottom: 8px; }
-    p { line-height: 1.5; }
-    label { display: block; margin-top: 18px; }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border: 1px solid #999;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      margin-top: 24px;
-      padding: 14px;
-      background: #f47721;
-      color: #111;
-      border: 0;
-      border-radius: 8px;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    #resultado {
-      margin-top: 24px;
-      padding: 18px;
-      background: #f5f5f5;
-      border-radius: 8px;
-    }
-    #resultado p { margin: 10px 0; }
-    small { display: block; margin-top: 8px; line-height: 1.5; }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOINGES · Compras y precios</title>
+<style>
+:root{--ink:#202122;--muted:#65686d;--orange:#ed6b22;--line:#e3e4e7;--bg:#f5f5f3}*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;color:var(--ink);background:var(--bg)}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:10px 15px;background:white;color:var(--ink);font-weight:650}button:hover{border-color:var(--orange)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffba8b;outline-offset:2px}button.primary{background:var(--orange);border-color:var(--orange);color:#171717}button.dark{background:var(--ink);color:white}button.danger{color:#ad2525}button:disabled{opacity:.5;cursor:default}header{background:#202122;color:white;padding:22px max(24px,calc((100vw - 1280px)/2));border-bottom:4px solid var(--orange)}.brand{font-weight:850;letter-spacing:3px;font-size:25px}.brand span{color:#ff914d}.tag{font-size:12px;color:#c9cace;margin-top:3px}main{max-width:1328px;margin:auto;padding:28px 24px 60px}h1{font-size:30px;letter-spacing:-1px;margin:0}h2{font-size:19px;margin:0 0 16px}p{margin:8px 0}.muted,small{color:var(--muted)}small{display:block;font-size:12px}nav,.toolbar,.heading{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.heading{justify-content:space-between;margin-bottom:22px}nav{margin-bottom:24px}nav button[aria-selected=true]{background:var(--ink);color:white}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px}.step{color:var(--orange);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}label{display:block;font-size:13px;font-weight:650}input,select{width:100%;border:1px solid #cbd0d5;border-radius:7px;padding:10px;background:white;color:var(--ink);margin-top:5px;min-width:0}input[type=number]{font-variant-numeric:tabular-nums}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;white-space:nowrap}th{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);background:#f8f8f7}td,th{padding:12px 9px;border-bottom:1px solid var(--line)}td input{min-width:100px;margin:0}.product{min-width:190px}.num{text-align:right;font-variant-numeric:tabular-nums}.row-remove{padding:6px 10px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.metric{border-radius:12px;background:white;border:1px solid var(--line);padding:18px}.metric strong{display:block;font-size:24px;letter-spacing:-.6px;margin-top:8px}.metric.accent{background:#fff0e5;border-color:#ffc59e}.pill{font-size:12px;padding:4px 9px;border-radius:20px;background:#f1f2ef;color:#555}.notice{padding:12px 16px;background:#fff5e8;border-radius:9px;color:#6a4317;margin:12px 0}.error{color:#a62020;background:#fff0f0}.foot{font-size:12px;margin-top:20px;color:var(--muted)}.empty{text-align:center;padding:45px 12px}.empty strong{font-size:20px}.history-item{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border:0}[hidden]{display:none!important}#status{position:sticky;bottom:12px;padding:12px 18px;background:#202122;color:white;border-radius:10px;box-shadow:0 5px 25px #0002}#status:empty{display:none}.hint{font-size:13px;margin:14px 0}.check{display:flex;gap:8px;align-items:center}.check input{width:auto;margin:0}@media(max-width:850px){.grid,.summary{grid-template-columns:repeat(2,1fr)}main{padding:20px 14px}.card{padding:17px}.metric strong{font-size:21px}h1{font-size:25px}.history-item{align-items:flex-start;flex-direction:column}}@media(max-width:450px){.grid{grid-template-columns:1fr}.metric{padding:12px}.metric strong{font-size:18px}}@media print{header,nav,.toolbar,button,.foot,#status,#history{display:none!important}body{background:white}main{padding:0}.card{break-inside:avoid}.table-wrap{overflow:visible}table{font-size:10px}td,th{padding:5px}}
+</style>
 </head>
 <body>
-  <main>
-    <h1>SOINGES</h1>
-    <p>Calculadora de precios de venta · Pesos colombianos</p>
-
-    <form id="formulario">
-      <label for="costo">Costo de compra por unidad ($)</label>
-      <input id="costo" type="number" min="0" step="0.01" required>
-
-      <label for="otros">Otros costos por unidad ($)</label>
-      <input id="otros" type="number" min="0" step="0.01"
-             value="0" required>
-      <small>Incluye transporte, empaque y otros costos asignados.</small>
-
-      <label for="margen">Margen de utilidad deseado (%)</label>
-      <input id="margen" type="number" min="0" max="99.99"
-             step="0.01" value="30" required>
-      <small>Porcentaje del precio antes de IVA que queda como utilidad,
-        después de descontar los costos ingresados.</small>
-
-      <label for="iva">IVA aplicable (%)</label>
-      <input id="iva" type="number" min="0" max="100"
-             step="0.01" value="0" required>
-      <small>Ingresa el porcentaje que corresponda al producto.</small>
-
-      <button type="submit">Calcular precio</button>
-    </form>
-
-    <section id="resultado" aria-live="polite" hidden></section>
-    <small>La utilidad calculada considera únicamente los costos
-      ingresados. No descuenta otros impuestos ni retenciones.</small>
-  </main>
-
-  <script>
-    const formulario = document.getElementById("formulario");
-    const resultado = document.getElementById("resultado");
-    const moneda = new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-
-    formulario.addEventListener("input", () => {
-      resultado.hidden = true;
-    });
-
-    formulario.addEventListener("submit", (evento) => {
-      evento.preventDefault();
-
-      const costo = document.getElementById("costo").valueAsNumber;
-      const otros = document.getElementById("otros").valueAsNumber;
-      const margen = document.getElementById("margen").valueAsNumber;
-      const iva = document.getElementById("iva").valueAsNumber;
-
-      if (![costo, otros, margen, iva].every(Number.isFinite) ||
-          costo < 0 || otros < 0 || margen < 0 || margen >= 100 ||
-          iva < 0 || iva > 100) {
-        resultado.textContent = "Revisa los valores ingresados.";
-        resultado.hidden = false;
-        return;
-      }
-
-      const costoTotal = costo + otros;
-      const precio = costoTotal / (1 - margen / 100);
-      const valorIva = precio * iva / 100;
-      const precioFinal = precio + valorIva;
-      const utilidad = precio - costoTotal;
-
-      if (![costoTotal, precio, valorIva, precioFinal, utilidad]
-          .every(Number.isFinite)) {
-        resultado.textContent = "Los valores son demasiado grandes.";
-        resultado.hidden = false;
-        return;
-      }
-
-      resultado.innerHTML = `
-        <p>Costo total: <strong>${moneda.format(costoTotal)}</strong></p>
-        <p>Precio antes de IVA: <strong>${moneda.format(precio)}</strong></p>
-        <p>IVA: <strong>${moneda.format(valorIva)}</strong></p>
-        <p>Precio final: <strong>${moneda.format(precioFinal)}</strong></p>
-        <p>Utilidad: <strong>${moneda.format(utilidad)}</strong></p>
-      `;
-      resultado.hidden = false;
-    });
-  </script>
-</body>
-</html>
+<header><div class="brand">SOINGES<span>.</span></div><div class="tag">COMPRAS · FLETES · PRECIOS</div></header>
+<main>
+<div class="heading"><div><h1>El costo real de cada compra</h1><p class="muted">Registra un envío y distribuye su transporte entre los productos recibidos.</p></div><span class="pill">COP · Pesos colombianos</span></div>
+<nav aria-label="Secciones"><button id="tab-editor" aria-selected="true">Nuevo envío</button><button id="tab-history" aria-selected="false">Historial <span id="count">0</span></button></nav>
+<section id="editor">
+<form id="purchase-form">
+<div class="card"><div class="step">01 · Identifica la compra</div><h2 id="editor-title">Nuevo envío</h2>
+<div class="grid"><label>Proveedor o descripción del envío<input id="supplier" required maxlength="150" placeholder="Ej. Proveedor de dotación"></label><label>Fecha de recepción<input id="date" type="date" required></label><label>Factura(s) de compra<input id="invoices" maxlength="250" placeholder="Ej. FE123, FE124"></label><label>Guía / transportadora<input id="guide" maxlength="200" placeholder="Referencia del envío"></label></div>
+<p class="hint muted">Agrupa únicamente productos que viajaron en este envío, incluso si corresponden a varias facturas.</p></div>
+<div class="card"><div class="step">02 · Ingresa los valores</div><h2>Transporte y precio de venta</h2><div class="grid">
+<label>Transporte total del envío ($)<input id="freight" type="number" required min="0" max="1000000000" step="0.01" placeholder="Incluye manejo y otros cargos"></label>
+<label>Distribuir el transporte por<select id="method"><option value="value">Valor de compra</option><option value="quantity">Cantidad de unidades</option><option value="weight">Peso total por producto</option></select></label>
+<label>Margen sobre venta (%)<input id="margin" type="number" required min="0" max="99" step="0.01" value="30"></label>
+<label>IVA de venta por defecto (%)<input id="default-vat" type="number" min="0" max="100" step="0.01" value="19"><small>Se aplica a productos nuevos; puedes editar cada fila.</small></label></div>
+<p id="method-help" class="hint muted"></p><small>Ingresa 0 si confirmaste que no hay transporte a cargo de SOINGES. Un campo vacío queda pendiente.</small></div>
+<div class="card"><div class="step">03 · Agrega lo recibido</div><h2>Productos del envío</h2><p class="hint muted">Costo base por unidad después de descuentos. Usa la misma base de costo en todo el envío. El IVA de venta se calcula por separado.</p>
+<div class="table-wrap"><table><thead><tr><th>Producto / referencia</th><th>Cantidad</th><th>Costo base unit. ($)</th><th>Otros costos unit. ($)</th><th>IVA venta (%)</th><th class="weight-col" hidden>Peso total fila (kg)</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="toolbar" style="margin-top:16px"><button id="add-row" type="button">+ Agregar producto</button><span class="muted" id="row-count"></span></div>
+<small style="margin-top:10px">Otros costos unitarios: empaque u otros gastos adicionales. No repitas allí el flete que ingresaste arriba. Cantidad admite fracciones, por ejemplo metros o kilogramos.</small></div>
+<div id="calc-error" class="notice error" role="alert" hidden></div>
+<section id="results" aria-label="Resultados del envío" hidden>
+<div class="summary"><div class="metric"><small>Compra base</small><strong id="sum-base"></strong></div><div class="metric"><small>Flete distribuido</small><strong id="sum-freight"></strong></div><div class="metric"><small>Costo total con adicionales</small><strong id="sum-cost"></strong></div><div class="metric accent"><small>Venta total sugerida con IVA</small><strong id="sum-sale"></strong></div></div>
+<div class="card"><div class="heading"><h2 style="margin:0">Costo y precio por producto</h2><span class="pill" id="reconcile"></span></div><div class="table-wrap"><table><thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Flete asignado</th><th class="num">Flete / unidad</th><th class="num">Costo / unidad</th><th class="num">Venta sin IVA / unidad</th><th class="num">Venta con IVA / unidad</th></tr></thead><tbody id="result-rows"></tbody></table></div><p class="hint muted" id="profit"></p><small>Margen aplicado al precio antes de IVA. La utilidad solo descuenta los costos ingresados; no incluye otros impuestos ni retenciones. Los valores unitarios se muestran a dos decimales; el flete total asignado se concilia en centavos.</small></div></section>
+<div class="toolbar"><button class="primary" type="submit">Guardar envío</button><button type="button" id="export-csv">Exportar productos (CSV)</button><button type="button" id="new-purchase">Nuevo envío</button></div>
+</form>
+</section>
+<section id="history" hidden><div class="card"><div class="heading"><div><h2 style="margin:0">Tus compras guardadas</h2><p class="muted">Abre un envío para consultar o actualizar sus productos.</p></div><div class="toolbar"><button id="backup" class="dark">Descargar respaldo</button><button id="restore">Importar respaldo</button><input id="import-file" type="file" accept=".json,application/json" hidden></div></div><label>Buscar por proveedor, factura, guía o producto<input id="search" placeholder="Buscar en el historial…"></label><div id="history-list"></div></div></section>
+<p class="foot">Guardado local en este navegador y equipo. No hay sincronización entre dispositivos. Descarga un respaldo periódicamente y antes de borrar los datos del navegador. Las compras que ingresas no se envían a GitHub ni se incluyen en el código público.</p>
+<div id="status" role="status" aria-live="polite"></div>
+</main>
+<script>
+'use strict';
+const KEY='soinges.compras.v1', LIMIT=1e9;
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const uid=()=>crypto.randomUUID();
+let purchases=[],editing=null,dirty=false,storageOK=true,current=null;
+function announce(s){$('status').textContent=s;}
+function number(v,label,max=LIMIT){if(v===''||v===null||v===undefined||!Number.isFinite(Number(v))||Number(v)<0||Number(v)>max)throw Error('Revisa '+label+'.');return Number(v);}
+function calculate(p){
+ const freight=number(p.freight,'el transporte total'),margin=number(p.margin,'el margen',99);
+ if(!['value','quantity','weight'].includes(p.method))throw Error('Selecciona un método de distribución.');
+ if(!p.rows.length||p.rows.length>100)throw Error('Agrega entre 1 y 100 productos.');
+ const rows=p.rows.map((r,i)=>{const qty=number(r.qty,'la cantidad del producto '+(i+1),1e6);if(qty===0)throw Error('La cantidad debe ser mayor que cero.');const cost=number(r.cost,'el costo base del producto '+(i+1)),extra=number(r.extra,'los otros costos'),vat=number(r.vat,'el IVA de venta',100);const weight=p.method==='weight'?number(r.weight,'el peso total del producto '+(i+1),1e6):0;if(p.method==='weight'&&weight===0)throw Error('Cada fila debe tener un peso total mayor que cero.');return {...r,qty,cost,extra,vat,weight,base:qty*cost};});
+ const bases=rows.map(r=>p.method==='value'?r.base:p.method==='quantity'?r.qty:r.weight),totalBasis=bases.reduce((a,b)=>a+b,0),cents=Math.round(freight*100);
+ if(!totalBasis&&cents)throw Error('Para repartir por valor, el costo total de compra debe ser mayor que cero.');
+ const exact=bases.map(b=>totalBasis?cents*b/totalBasis:0),allocated=exact.map(Math.floor);let left=cents-allocated.reduce((a,b)=>a+b,0);
+ const order=exact.map((v,i)=>({i,f:v-allocated[i]})).sort((a,b)=>b.f-a.f||a.i-b.i);for(let i=0;i<left;i++)allocated[order[i%order.length].i]++;
+ rows.forEach((r,i)=>{r.freight=allocated[i]/100;r.freightUnit=r.freight/r.qty;r.unitCost=r.cost+r.extra+r.freightUnit;r.sale=r.unitCost/(1-margin/100);r.saleVat=r.sale*(1+r.vat/100);});
+ const base=rows.reduce((s,r)=>s+r.base,0),cost=rows.reduce((s,r)=>s+r.unitCost*r.qty,0),sale=rows.reduce((s,r)=>s+r.sale*r.qty,0),saleVat=rows.reduce((s,r)=>s+r.saleVat*r.qty,0);
+ return {rows,base,freight:cents/100,cost,sale,saleVat,profit:sale-cost};
+}
+function getPurchase(){return {supplier:$('supplier').value.trim(),date:$('date').value,invoices:$('invoices').value.trim(),guide:$('guide').value.trim(),freight:$('freight').value,method:$('method').value,margin:$('margin').value,defaultVat:$('default-vat').value,rows:[...$('rows').children].map(tr=>Object.fromEntries([...tr.querySelectorAll('input')].map(x=>[x.dataset.field,x.value])))};}
+function addRow(r={}){if($('rows').children.length>=100){announce('Máximo 100 productos por envío.');return;}const tr=document.createElement('tr');const fields=[['name','text',r.name??''],['qty','number',r.qty??1],['cost','number',r.cost??''],['extra','number',r.extra??0],['vat','number',r.vat??$('default-vat').value],['weight','number',r.weight??'']];for(const [field,type,value]of fields){const td=document.createElement('td'),input=document.createElement('input');input.dataset.field=field;input.type=type;input.value=value;input.setAttribute('aria-label',({name:'Producto o referencia',qty:'Cantidad',cost:'Costo base unitario',extra:'Otros costos unitarios',vat:'IVA de venta',weight:'Peso total de la fila'})[field]);if(type==='number'){input.min=field==='qty'?'0.001':field==='weight'?'0.001':'0';input.step=['qty','weight'].includes(field)?'0.001':'0.01';input.max=field==='vat'?'100':['qty','weight'].includes(field)?'1000000':String(LIMIT);}else{input.maxLength=200;input.className='product';input.placeholder='Nombre / referencia';}input.required=field!=='weight'||$('method').value==='weight';if(field==='weight'){td.className='weight-col';td.hidden=$('method').value!=='weight';}td.append(input);tr.append(td);}const td=document.createElement('td'),btn=document.createElement('button');btn.type='button';btn.textContent='×';btn.className='row-remove danger';btn.setAttribute('aria-label','Eliminar producto');btn.onclick=()=>{if($('rows').children.length===1){announce('El envío necesita al menos un producto.');return;}tr.remove();dirty=true;render();};td.append(btn);tr.append(td);$('rows').append(tr);render();}
+function render(){
+ const method=$('method').value;document.querySelectorAll('.weight-col').forEach(el=>el.hidden=method!=='weight');document.querySelectorAll('[data-field=weight]').forEach(el=>el.required=method==='weight');
+ $('method-help').textContent=({value:'Cada producto recibe una parte del flete según su valor de compra. Los otros costos no cambian esa proporción.',quantity:'Usa este método solo con unidades comparables en tamaño y peso. No mezcles pares, metros y kilogramos.',weight:'Ingresa el peso total de cada fila: cantidad × peso por unidad. No uses la capacidad del extintor como peso de transporte.'})[method];
+ $('row-count').textContent=$('rows').children.length+' producto(s)';
+ try{current=calculate(getPurchase());$('calc-error').hidden=true;$('results').hidden=false;for(const [id,v]of [['sum-base',current.base],['sum-freight',current.freight],['sum-cost',current.cost],['sum-sale',current.saleVat]])$(id).textContent=money(v);$('result-rows').innerHTML=current.rows.map(r=>`<tr><td>${esc(r.name||'Producto sin nombre')}</td><td class="num">${r.qty}</td>${[r.freight,r.freightUnit,r.unitCost,r.sale,r.saleVat].map(v=>`<td class="num">${money(v)}</td>`).join('')}</tr>`).join('');$('reconcile').textContent='100 % del flete distribuido';$('profit').textContent='Utilidad estimada de todo el envío: '+money(current.profit)+' · Margen: '+$('margin').value+' %.';}
+ catch(e){current=null;$('results').hidden=true;$('calc-error').hidden=false;$('calc-error').textContent=e.message;}
+}
+function validRecord(p){if(!p||typeof p!=='object'||typeof p.id!=='string'||p.id.length>100||typeof p.supplier!=='string'||!p.supplier.trim()||p.supplier.length>150||!/^\d{4}-\d{2}-\d{2}$/.test(p.date)||!Array.isArray(p.rows))throw Error('El respaldo contiene un envío no válido.');const clean={id:p.id,supplier:p.supplier,date:p.date,invoices:String(p.invoices??'').slice(0,250),guide:String(p.guide??'').slice(0,200),freight:number(p.freight,'el flete'),method:p.method,margin:number(p.margin,'el margen',99),defaultVat:number(p.defaultVat??19,'el IVA',100),rows:p.rows.map(r=>{if(!r||typeof r.name!=='string'||!r.name.trim()||r.name.length>200)throw Error('Producto no válido en el respaldo.');return {name:r.name,qty:number(r.qty,'la cantidad',1e6),cost:number(r.cost,'el costo'),extra:number(r.extra,'los costos'),vat:number(r.vat,'el IVA',100),weight:r.weight===''?'':number(r.weight??0,'el peso',1e6)};})};calculate(clean);return clean;}
+function persist(next){if(!storageOK)throw Error('El almacenamiento local no está disponible. Exporta tus datos antes de continuar.');try{localStorage.setItem(KEY,JSON.stringify(next));}catch{throw Error('No se pudo guardar. El navegador bloqueó el almacenamiento o está lleno. Exporta los productos para conservarlos.');}purchases=next;renderHistory();}
+function newPurchase(){if(dirty&&!confirm('Hay cambios sin guardar. ¿Quieres descartarlos y empezar otro envío?'))return;editing=null;$('purchase-form').reset();$('date').value=today();$('rows').replaceChildren();$('editor-title').textContent='Nuevo envío';addRow();dirty=false;show('editor');announce('Nuevo envío listo para diligenciar.');}
+function show(section){$('editor').hidden=section!=='editor';$('history').hidden=section!=='history';$('tab-editor').setAttribute('aria-selected',String(section==='editor'));$('tab-history').setAttribute('aria-selected',String(section==='history'));if(section==='history')renderHistory();}
+function openRecord(id){if(dirty&&!confirm('Hay cambios sin guardar. ¿Quieres descartarlos y abrir este envío?'))return;const p=purchases.find(x=>x.id===id);if(!p)return;editing=id;for(const field of ['supplier','date','invoices','guide','freight','method','margin'])$(field).value=p[field];$('default-vat').value=p.defaultVat;$('rows').replaceChildren();p.rows.forEach(addRow);$('editor-title').textContent='Editar envío guardado';dirty=false;show('editor');render();announce('Envío abierto. Guarda de nuevo si realizas cambios.');}
+function renderHistory(){const q=$('search').value.toLocaleLowerCase();$('count').textContent=purchases.length;const filtered=purchases.filter(p=>[p.supplier,p.invoices,p.guide,...p.rows.map(r=>r.name)].join(' ').toLocaleLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));$('history-list').replaceChildren();if(!filtered.length){$('history-list').innerHTML='<div class="empty"><strong>'+ (purchases.length?'No hay coincidencias':'Tu próxima compra empieza aquí')+'</strong><p class="muted">'+(purchases.length?'Prueba con otro nombre o número de factura.':'Guarda tu primer envío para consultarlo en este historial.')+'</p></div>';return;}filtered.forEach(p=>{const c=calculate(p),el=document.createElement('div');el.className='history-item';el.innerHTML=`<div><strong>${esc(p.supplier)}</strong><div class="muted">${esc(p.date)} · Factura(s): ${esc(p.invoices||'Sin referencia')} · ${p.rows.length} producto(s)</div><small>Costo total: ${money(c.cost)} · Flete: ${money(c.freight)}</small></div><div class="toolbar"><button data-action="open">Abrir</button><button data-action="delete" class="danger">Eliminar</button></div>`;el.querySelector('[data-action=open]').onclick=()=>openRecord(p.id);el.querySelector('[data-action=delete]').onclick=()=>{if(!confirm('¿Eliminar el envío de '+p.supplier+'? Esta acción no se puede deshacer sin un respaldo.'))return;try{persist(purchases.filter(x=>x.id!==p.id));if(editing===p.id){editing=null;dirty=true;$('editor-title').textContent='Envío sin guardar';}announce('Envío eliminado del historial.');}catch(e){announce(e.message);}};$('history-list').append(el);});}
+function download(text,type,name){const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function csvCell(v){let s=String(v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
+$('purchase-form').addEventListener('input',()=>{dirty=true;render();});$('method').addEventListener('change',()=>{dirty=true;render();});
+$('add-row').onclick=()=>{addRow();dirty=true;};$('new-purchase').onclick=newPurchase;$('tab-editor').onclick=()=>show('editor');$('tab-history').onclick=()=>show('history');$('search').oninput=renderHistory;
+$('purchase-form').onsubmit=e=>{e.preventDefault();try{const p=validRecord({...getPurchase(),id:editing||uid()});persist(editing?purchases.map(x=>x.id===editing?p:x):[...purchases,p]);editing=p.id;dirty=false;$('editor-title').textContent='Editar envío guardado';announce('Envío guardado en este navegador. Puedes consultarlo en Historial.');}catch(e){announce(e.message);}};
+$('export-csv').onclick=()=>{try{const p=getPurchase(),c=calculate(p);const headers=['Proveedor','Fecha','Facturas','Guía','Producto','Cantidad','Costo base unitario','Otros costos unitarios','Flete total asignado','Flete unitario','Costo unitario total','Margen %','IVA venta %','Venta unitaria sin IVA','Venta unitaria con IVA','Método de reparto'];const dec=n=>n.toFixed(2).replace('.',',');const data=c.rows.map(r=>[p.supplier,p.date,p.invoices,p.guide,r.name,String(r.qty).replace('.',','),dec(r.cost),dec(r.extra),dec(r.freight),dec(r.freightUnit),dec(r.unitCost),p.margin,r.vat,dec(r.sale),dec(r.saleVat),p.method]);download('\uFEFF'+[headers,...data].map(row=>row.map(csvCell).join(';')).join('\r\n'),'text/csv;charset=utf-8','SOINGES_productos_'+(p.date||today())+'.csv');announce('CSV exportado para abrir en Excel.');}catch(e){announce(e.message);}};
+$('backup').onclick=()=>{download(JSON.stringify({app:'soinges-compras',version:1,exportedAt:new Date().toISOString(),purchases},null,2),'application/json','SOINGES_respaldo_'+today()+'.json');announce('Respaldo descargado. Contiene los envíos guardados, no los cambios pendientes.');};
+$('restore').onclick=()=>$('import-file').click();$('import-file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>10*1024*1024)throw Error('El archivo supera 10 MB.');const data=JSON.parse(await f.text());if(data.app!=='soinges-compras'||data.version!==1||!Array.isArray(data.purchases)||data.purchases.length>5000)throw Error('Selecciona un respaldo JSON generado por esta aplicación.');const imported=data.purchases.map(validRecord),known=new Set(purchases.map(p=>p.id)),fresh=[];for(const p of imported){if(!known.has(p.id)){fresh.push(p);known.add(p.id);}}if(!fresh.length){announce('Los envíos de este respaldo ya están en el historial. No se sobrescribió ninguno.');return;}if(!confirm('Se agregarán '+fresh.length+' envío(s). Los que ya existen conservarán sus datos actuales. ¿Continuar?'))return;persist([...purchases,...fresh]);announce(fresh.length+' envío(s) importados.');}catch(e){announce('No se importó el respaldo: '+e.message);}finally{e.target.value='';}};
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+try{const raw=localStorage.getItem(KEY);if(raw){const parsed=JSON.parse(raw);if(!Array.isArray(parsed))throw Error();purchases=parsed.map(validRecord);}}catch{storageOK=false;announce('No se pudo leer el historial local. No se sobrescribirán los datos existentes. Puedes calcular y exportar CSV.');}
+$('date').value=today();addRow();dirty=false;renderHistory();
+</script>
+</body></html>
