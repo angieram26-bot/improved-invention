@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora SOINGES</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      margin: 0;
+      padding: 24px;
+    }
+    main {
+      max-width: 520px;
+      margin: auto;
+      background: white;
+      padding: 28px;
+      border-radius: 16px;
+      border-top: 8px solid #f47721;
+    }
+    h1 { margin-bottom: 8px; }
+    p { line-height: 1.5; }
+    label { display: block; margin-top: 18px; }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #999;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px;
+      background: #f47721;
+      color: #111;
+      border: 0;
+      border-radius: 8px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 24px;
+      padding: 18px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    #resultado p { margin: 10px 0; }
+    small { display: block; margin-top: 8px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>SOINGES</h1>
+    <p>Calculadora de precios de venta · Pesos colombianos</p>
+
+    <form id="formulario">
+      <label for="costo">Costo de compra por unidad ($)</label>
+      <input id="costo" type="number" min="0" step="0.01" required>
+
+      <label for="otros">Otros costos por unidad ($)</label>
+      <input id="otros" type="number" min="0" step="0.01"
+             value="0" required>
+      <small>Incluye transporte, empaque y otros costos asignados.</small>
+
+      <label for="margen">Margen de utilidad deseado (%)</label>
+      <input id="margen" type="number" min="0" max="99.99"
+             step="0.01" value="30" required>
+      <small>Porcentaje del precio antes de IVA que queda como utilidad,
+        después de descontar los costos ingresados.</small>
+
+      <label for="iva">IVA aplicable (%)</label>
+      <input id="iva" type="number" min="0" max="100"
+             step="0.01" value="0" required>
+      <small>Ingresa el porcentaje que corresponda al producto.</small>
+
+      <button type="submit">Calcular precio</button>
+    </form>
+
+    <section id="resultado" aria-live="polite" hidden></section>
+    <small>La utilidad calculada considera únicamente los costos
+      ingresados. No descuenta otros impuestos ni retenciones.</small>
+  </main>
+
+  <script>
+    const formulario = document.getElementById("formulario");
+    const resultado = document.getElementById("resultado");
+    const moneda = new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    formulario.addEventListener("input", () => {
+      resultado.hidden = true;
+    });
+
+    formulario.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+
+      const costo = document.getElementById("costo").valueAsNumber;
+      const otros = document.getElementById("otros").valueAsNumber;
+      const margen = document.getElementById("margen").valueAsNumber;
+      const iva = document.getElementById("iva").valueAsNumber;
+
+      if (![costo, otros, margen, iva].every(Number.isFinite) ||
+          costo < 0 || otros < 0 || margen < 0 || margen >= 100 ||
+          iva < 0 || iva > 100) {
+        resultado.textContent = "Revisa los valores ingresados.";
+        resultado.hidden = false;
+        return;
+      }
+
+      const costoTotal = costo + otros;
+      const precio = costoTotal / (1 - margen / 100);
+      const valorIva = precio * iva / 100;
+      const precioFinal = precio + valorIva;
+      const utilidad = precio - costoTotal;
+
+      if (![costoTotal, precio, valorIva, precioFinal, utilidad]
+          .every(Number.isFinite)) {
+        resultado.textContent = "Los valores son demasiado grandes.";
+        resultado.hidden = false;
+        return;
+      }
+
+      resultado.innerHTML = `
+        <p>Costo total: <strong>${moneda.format(costoTotal)}</strong></p>
+        <p>Precio antes de IVA: <strong>${moneda.format(precio)}</strong></p>
+        <p>IVA: <strong>${moneda.format(valorIva)}</strong></p>
+        <p>Precio final: <strong>${moneda.format(precioFinal)}</strong></p>
+        <p>Utilidad: <strong>${moneda.format(utilidad)}</strong></p>
+      `;
+      resultado.hidden = false;
+    });
+  </script>
+</body>
+</html>
