@@ -35,8 +35,18 @@ Haz respaldos periódicos y antes de cambiar de equipo o limpiar el navegador.
 
 ## Alcance
 
-Ingreso manual de productos y fletes. No extrae automáticamente facturas PDF ni se conecta a OneDrive. Las facturas empresariales no forman parte de este repositorio público.
+Ingreso manual o asistido por OCR local de imágenes JPG, PNG y WebP (hasta 15 MB y 32 megapíxeles). No abre directamente PDF ni se conecta a OneDrive; permite pegar texto copiado del PDF. Las facturas empresariales no forman parte de este repositorio público.
 
 ## Verificación
 
 Se verificaron sintaxis JavaScript, reparto de una factura de referencia, cálculo del precio de venta, reparto por peso, cantidades fraccionarias, validación de entradas, validación de registros de respaldo y conciliación de centavos en 500 casos. La revisión visual e interacción final se deben comprobar en navegador.
+
+## Importar productos de una imagen
+
+En Productos del envío, pulsa Adjuntar imagen de factura, selecciona una imagen nítida y pulsa Leer productos de la imagen. El lector Tesseract.js 6.0.1 y sus recursos se descargan desde CDN bajo demanda; la imagen se procesa en el navegador, no se envía a un servicio de análisis y no se conserva en el historial ni en el respaldo.
+
+Revisa las filas propuestas, corrige las cantidades y los costos, desmarca líneas incorrectas y marca la confirmación antes de agregar los productos al envío. El lector no determina el tratamiento del IVA, ni garantiza detectar todas las líneas. La detección básica espera descripción, cantidad, precio unitario y total opcional. Las filas con más columnas quedan con valores pendientes para evitar confundir descuentos o IVA con el costo. Los productos reciben el IVA de venta por defecto y otros costos en cero; pueden editarse después.
+
+Puedes cargar una página a la vez. Para un PDF con texto seleccionable, utiliza Texto leído o copiado de una factura. Para un PDF escaneado, usa una captura JPG o PNG de la tabla.
+
+Se verificó el separador de productos contra el texto de una factura de cinco líneas, formatos numéricos colombiano e inglés, tamaños dentro de nombres, filas ambiguas y exclusión de totales. La lectura de imágenes completa depende del navegador y de su acceso al CDN; queda pendiente su prueba con una imagen real en el equipo del usuario.
