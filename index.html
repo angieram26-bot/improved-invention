@@ -141,8 +141,10 @@ function ocrControls(busy){ocrBusy=busy;$('read-image').disabled=busy;$('invoice
 function stopOCR(message){ocrToken++;clearTimeout(ocrTimer);if(pdfRenderTask){pdfRenderTask.cancel();pdfRenderTask=null;}if(pdfTask&&!invoicePDF){const t=pdfTask;pdfTask=null;t.destroy().catch(()=>{});}if(ocrWorker){const worker=ocrWorker;ocrWorker=null;worker.terminate().catch(()=>{});}ocrControls(false);if(message)ocrMessage(message);}
 function resetOCR(){stopOCR('');clearPDF();ocrImage=null;if(ocrImageURL)URL.revokeObjectURL(ocrImageURL);ocrImageURL=null;$('invoice-preview').removeAttribute('src');$('invoice-image').value='';$('ocr-text').value='';$('ocr-review').replaceChildren();$('ocr-review-box').hidden=true;$('ocr-image-box').hidden=true;$('ocr-panel').hidden=true;$('ocr-confirm').checked=false;ocrMessage('');}
 function loadOCR(){if(window.Tesseract)return Promise.resolve(window.Tesseract);if(ocrLoader)return ocrLoader;ocrLoader=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';script.crossOrigin='anonymous';const timeout=setTimeout(()=>{script.remove();ocrLoader=null;reject(Error('No se pudo descargar el lector. Revisa tu conexión e intenta de nuevo.'));},45000);script.onload=()=>{clearTimeout(timeout);if(window.Tesseract)resolve(window.Tesseract);else{ocrLoader=null;reject(Error('No se pudo iniciar el lector.'));}};script.onerror=()=>{clearTimeout(timeout);script.remove();ocrLoader=null;reject(Error('No se pudo descargar el lector. Revisa tu conexión.'));};document.head.append(script);});return ocrLoader;}
-function showDetected(){const text=$('ocr-text').value;if(!text.trim()){ocrMessage('No hay texto para analizar. Carga una imagen o pega el texto de la factura.');return;}
- const all=detectInvoiceRows(text),items=all.slice(0,100);$('ocr-review').replaceChildren();$('ocr-confirm').checked=false;$('ocr-review-box').hidden=!items.length;
+let pdfDetectedCache=null;
+function showDetected(detected){const text=$('ocr-text').value;if(!text.trim()){ocrMessage('No hay texto para analizar. Carga una imagen o pega el texto de la factura.');return;}
+ if(Array.isArray(detected))pdfDetectedCache={text,rows:detected};
+ const all=Array.isArray(detected)?detected:pdfDetectedCache?.text===text?pdfDetectedCache.rows:detectInvoiceRows(text),items=all.slice(0,100);$('ocr-review').replaceChildren();$('ocr-confirm').checked=false;$('ocr-review-box').hidden=!items.length;
  if(!items.length){ocrMessage('No pude separar los productos de este formato. Prueba una foto más cercana de la tabla o pega texto con descripción, cantidad y precio unitario en cada línea.');$('ocr-text-section').open=true;return;}
  items.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td><input type="checkbox" checked data-ocr="include" aria-label="Incluir producto"></td><td><input class="product" data-ocr="name" maxlength="200" aria-label="Descripción detectada" value="${esc(r.name)}"></td><td><input type="number" min="0.001" max="1000000" step="0.001" data-ocr="qty" aria-label="Cantidad detectada" value="${esc(r.qty)}"></td><td><input type="number" min="0" max="1000000000" step="0.01" data-ocr="cost" aria-label="Costo unitario detectado" value="${esc(r.cost)}"></td><td><small>${esc(r.note)}</small><details><summary>Ver texto original</summary><small>${esc(r.source)}</small></details></td>`;tr.querySelectorAll('input').forEach(el=>el.setAttribute('form','ocr-independent'));$('ocr-review').append(tr);});
  ocrMessage(items.length+' línea(s) candidata(s). Revisa los datos antes de agregarlos.'+(all.length>100?' Se muestran las primeras 100; divide la factura en partes.':''));updateOCRSummary();
@@ -156,6 +158,39 @@ function pdfTextToLines(items){
  const rows=[];
  for(const item of items){if(!item.str||!Array.isArray(item.transform))continue;const x=item.transform[4],y=item.transform[5];if(!Number.isFinite(x)||!Number.isFinite(y))continue;let row=rows.find(r=>Math.abs(r.y-y)<3);if(!row){row={y,items:[]};rows.push(row);}row.items.push({x,text:item.str});}
  return rows.sort((a,b)=>b.y-a.y).map(r=>r.items.sort((a,b)=>a.x-b.x).map(i=>i.text).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean).join('\n');
+}
+// Read the table by column geometry, preserving wrapped descriptions and repeated products.
+function detectPDFRows(items){
+ const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ const words=items.filter(i=>i.str?.trim()&&Array.isArray(i.transform)).map(i=>({text:i.str.trim(),x:i.transform[4],y:i.transform[5],w:i.width||0}));
+ const q=words.find(i=>norm(i.text)==='cantidad');if(!q)return words.some(i=>norm(i.text)==='datos totales')?[]:null;
+ const header=words.filter(i=>Math.abs(i.y-q.y)<11);
+ const description=header.find(i=>/^descripcion$/.test(norm(i.text)));
+ const price=header.filter(i=>/unitario/.test(norm(i.text))).sort((a,b)=>a.x-b.x)[0];
+ const index=header.find(i=>/^(item|nro\.?|no\.?)$/.test(norm(i.text)));
+ if(!description||!price||!index)return null;
+ const columns=header.filter(i=>!/^(vr\.?|detalle|venta|impuestos)$/.test(norm(i.text))).sort((a,b)=>a.x-b.x);
+ const before=columns.filter(i=>i.x<description.x).at(-1),after=columns.find(i=>i.x>description.x);
+ const left=before?before.x+before.w:0,right=after?after.x: q.x;
+ const anchors=words.filter(i=>i.y<q.y-10&&Math.abs(i.x+i.w/2-index.x-index.w/2)<12&&/^\d{1,4}$/.test(i.text)).sort((a,b)=>b.y-a.y);
+ const result=[];
+ for(let n=0;n<anchors.length;n++){
+  const a=anchors[n],gap=n?anchors[n-1].y-a.y:anchors[1]?a.y-anchors[1].y:24;
+  const top=n?(anchors[n-1].y+a.y)/2:Math.min(q.y-7,a.y+Math.min(gap/2,20));
+  const bottom=anchors[n+1]?(a.y+anchors[n+1].y)/2:a.y-Math.min(gap/2,20);
+  const row=words.filter(i=>i.y<=top&&i.y>bottom);
+  const name=pdfTextToLines(row.filter(i=>i.x>=left-1&&i.x+i.w<=right+1).map(i=>({str:i.text,width:i.w,transform:[1,0,0,1,i.x,i.y]}))).replace(/\n/g,' ').trim();
+  const cell=column=>row.filter(i=>parseInvoiceNumber(i.text)!==null).filter(i=>{
+   const center=i.x+i.w/2;
+   return columns.reduce((best,c)=>Math.abs(center-c.x-c.w/2)<Math.abs(center-best.x-best.w/2)?c:best,columns[0])===column;
+  });
+  const quantities=cell(q),prices=cell(price);
+  if(!name||quantities.length!==1||prices.length!==1)continue;
+  const qty=parseInvoiceNumber(quantities[0].text),cost=parseInvoiceNumber(prices[0].text);
+  if(!(qty>0&&qty<=1e6))continue;
+  result.push({name:name.slice(0,200),qty,cost,note:'Columnas identificadas: cantidad y precio unitario. Revisa descuentos e IVA.',source:row.sort((a,b)=>b.y-a.y||a.x-b.x).map(i=>i.text).join(' ')});
+ }
+ return result.length?result:null;
 }
 function pdfRange(start,end,total){const a=Number(start),b=Number(end);if(!Number.isInteger(a)||!Number.isInteger(b)||a<1||b<a||b>total)throw Error('Selecciona un rango válido entre 1 y '+total+'.');if(b-a+1>20)throw Error('Lee hasta 20 páginas a la vez. Selecciona un rango menor.');return {start:a,end:b};}
 async function loadPDF(){if(!pdfModule){pdfModule=import('https://cdn.jsdelivr.net/npm/pdfjs-dist@'+PDF_VERSION+'/build/pdf.min.mjs').then(lib=>{lib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@'+PDF_VERSION+'/build/pdf.worker.min.mjs';return lib;}).catch(e=>{pdfModule=null;throw e;});}return pdfModule;}
@@ -189,22 +224,22 @@ $('read-image').onclick=async()=>{
  const token=++ocrToken,activePDF=invoicePDF,forceOCR=$('pdf-mode').value==='scan';ocrControls(true);$('ocr-progress').value=0;$('ocr-review-box').hidden=true;$('ocr-text').value='';ocrMessage('Leyendo factura…');
  const refreshTimeout=()=>{clearTimeout(ocrTimer);ocrTimer=setTimeout(()=>stopOCR('Lectura detenida por tiempo de espera. El texto mostrado puede estar incompleto. Prueba menos páginas.'),180000);};refreshTimeout();
  try{
-  let texts=[],failed=[],scanned=0;
+  let texts=[],failed=[],scanned=0,detected=[];
   if(activePDF){
    for(let n=range.start;n<=range.end;n++){
     if(token!==ocrToken)return;refreshTimeout();ocrMessage('Leyendo página '+n+' de '+activePDF.numPages+'…');let page=null;
     try{
-     page=await activePDF.getPage(n);if(token!==ocrToken)return;let text='';
-     if(!forceOCR){try{text=pdfTextToLines((await page.getTextContent()).items);}catch{}}
+     page=await activePDF.getPage(n);if(token!==ocrToken)return;let text='',pageRows=null;
+     if(!forceOCR){try{const content=await page.getTextContent();text=pdfTextToLines(content.items);pageRows=detectPDFRows(content.items);}catch{}}
      if(token!==ocrToken)return;
-     if(forceOCR||detectInvoiceRows(text).length===0){
+     if(forceOCR||!text.trim()){
       ocrMessage('Leyendo página '+n+' como imagen…');const canvas=document.createElement('canvas');try{await renderPDFPage(page,canvas);if(token!==ocrToken)return;const worker=await ensureOCRWorker(token,'Página '+n);const result=await worker.recognize(canvas,{rotateAuto:true});if(token!==ocrToken)return;const ocrText=result.data.text||'';if(forceOCR||!text.trim()||detectInvoiceRows(ocrText).length>detectInvoiceRows(text).length)text=ocrText;scanned++;}finally{canvas.width=1;canvas.height=1;}
      }
-     if(!text.trim())failed.push(n);else texts.push('--- Página '+n+' ---\n'+text);
+     if(!text.trim())failed.push(n);else{ texts.push('--- Página '+n+' ---\n'+text);detected.push(...(pageRows||detectInvoiceRows(text)));}
     }catch(e){if(token!==ocrToken)return;failed.push(n);}finally{if(page)page.cleanup();}
     if(token!==ocrToken)return;$('ocr-text').value=texts.join('\n\n');dirty=true;$('ocr-progress').value=(n-range.start+1)/(range.end-range.start+1);
    }
-   showDetected();const candidates=detectInvoiceRows($('ocr-text').value).length;
+   showDetected(detected);const candidates=detected.length;
    ocrMessage('Rango leído: '+range.start+'–'+range.end+'. '+candidates+' línea(s) candidata(s). '+scanned+' página(s) procesadas con lectura de imagen.'+(failed.length?' ATENCIÓN: no se pudieron leer las páginas '+failed.join(', ')+'. El resultado está incompleto.':' Revisa los productos antes de agregarlos.')+(candidates>100?' Solo se muestran las primeras 100; divide el rango.':''));
   }else{const worker=await ensureOCRWorker(token,'Factura');const {data}=await worker.recognize(ocrImage,{rotateAuto:true});if(token!==ocrToken)return;$('ocr-text').value=data.text||'';dirty=true;showDetected();}
  }catch(e){if(token===ocrToken){ocrMessage('No se pudo completar la lectura. El texto mostrado puede estar incompleto. Intenta con menos páginas o pega el texto de tu factura.');$('ocr-text-section').open=true;}}
