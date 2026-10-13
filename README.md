@@ -33,20 +33,24 @@ Los envíos se guardan en localStorage del navegador y dispositivo utilizados. N
 
 Haz respaldos periódicos y antes de cambiar de equipo o limpiar el navegador.
 
-## Alcance
+## Importar facturas PDF o imágenes
 
-Ingreso manual o asistido por OCR local de imágenes JPG, PNG y WebP (hasta 15 MB y 32 megapíxeles). No abre directamente PDF ni se conecta a OneDrive; permite pegar texto copiado del PDF. Las facturas empresariales no forman parte de este repositorio público.
+En Productos del envío, pulsa Adjuntar factura PDF o imagen y selecciona el archivo.
+
+- PDF de hasta 25 MB: muestra la primera página y permite elegir un rango de hasta 20 páginas por lectura. Si tiene más páginas, selecciona sucesivos rangos sin repetirlos.
+- JPG, PNG y WebP de hasta 15 MB y 32 megapíxeles.
+- Pulsa Leer productos del archivo. En PDF, el modo automático extrae texto ordenando las columnas por posición. Si una página no produce candidatos de productos, intenta OCR de esa página. También puedes elegir Leer todas como imagen.
+- Revisa las filas propuestas, corrige las cantidades y costos y desmarca líneas incorrectas. Confirma la revisión antes de agregar los productos al envío.
+- También puedes pegar texto copiado de una factura.
+
+Los archivos se procesan en el navegador y no se conservan en el historial ni en el respaldo. PDF.js 4.10.38 y Tesseract.js 6.0.1 se descargan desde CDN bajo demanda, por lo que se necesita internet. El contenido de la factura no se envía a un servicio de análisis. No se conecta automáticamente a OneDrive.
+
+Las sugerencias no garantizan detectar todas las líneas ni interpretar el IVA. La detección básica espera descripción, cantidad, precio unitario y total opcional. Las filas con más columnas dejan cantidad y costo pendientes para su revisión. Los productos reciben el IVA de venta por defecto y otros costos en cero, editables después.
+
+Si una página falla, se muestra un aviso de resultado incompleto con sus números. Los PDF protegidos requieren una copia sin contraseña. Importar el mismo rango dos veces puede duplicar productos; revisa antes de agregarlos. Cada envío admite hasta 100 filas.
 
 ## Verificación
 
-Se verificaron sintaxis JavaScript, reparto de una factura de referencia, cálculo del precio de venta, reparto por peso, cantidades fraccionarias, validación de entradas, validación de registros de respaldo y conciliación de centavos en 500 casos. La revisión visual e interacción final se deben comprobar en navegador.
+Se verificaron la sintaxis JavaScript, los cálculos de precio y flete, la conciliación de centavos y el separador de productos con formatos numéricos colombiano e inglés. PDF.js de la misma versión utilizada por la aplicación extrajo productos de un PDF de prueba de dos páginas. Se probó mediante simulación el flujo de un PDF mixto (texto e imagen), cierre del lector y avisos de páginas fallidas.
 
-## Importar productos de una imagen
-
-En Productos del envío, pulsa Adjuntar imagen de factura, selecciona una imagen nítida y pulsa Leer productos de la imagen. El lector Tesseract.js 6.0.1 y sus recursos se descargan desde CDN bajo demanda; la imagen se procesa en el navegador, no se envía a un servicio de análisis y no se conserva en el historial ni en el respaldo.
-
-Revisa las filas propuestas, corrige las cantidades y los costos, desmarca líneas incorrectas y marca la confirmación antes de agregar los productos al envío. El lector no determina el tratamiento del IVA, ni garantiza detectar todas las líneas. La detección básica espera descripción, cantidad, precio unitario y total opcional. Las filas con más columnas quedan con valores pendientes para evitar confundir descuentos o IVA con el costo. Los productos reciben el IVA de venta por defecto y otros costos en cero; pueden editarse después.
-
-Puedes cargar una página a la vez. Para un PDF con texto seleccionable, utiliza Texto leído o copiado de una factura. Para un PDF escaneado, usa una captura JPG o PNG de la tabla.
-
-Se verificó el separador de productos contra el texto de una factura de cinco líneas, formatos numéricos colombiano e inglés, tamaños dentro de nombres, filas ambiguas y exclusión de totales. La lectura de imágenes completa depende del navegador y de su acceso al CDN; queda pendiente su prueba con una imagen real en el equipo del usuario.
+La lectura OCR completa de facturas reales y la interfaz requieren prueba final en el navegador del usuario.
